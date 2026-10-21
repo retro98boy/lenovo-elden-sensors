@@ -1,0 +1,60 @@
+diff --git a/meson.build b/meson.build
+--- a/meson.build
++++ b/meson.build
+@@ -104,4 +104,8 @@
+-subdir('mocking')
++if get_option('tests')
++  subdir('mocking')
++endif
+ subdir('data')
+ subdir('src')
+-subdir('tests')
++if get_option('tests')
++  subdir('tests')
++endif
+diff --git a/src/meson.build b/src/meson.build
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -92,7 +92,7 @@
+   requires: ['glib-2.0', 'gobject-2.0', 'gio-2.0', 'qmi-glib'],
+ )
+ 
+-if dependency('gobject-introspection-1.0', required: false).found()
++if get_option('introspection') and dependency('gobject-introspection-1.0', required: false).found()
+   gnome = import('gnome')
+ 
+   gir_files = gnome.generate_gir(libssc,
+diff --git a/meson_options.txt b/meson_options.txt
+new file mode 100644
+--- /dev/null
++++ b/meson_options.txt
+@@ -0,0 +1,4 @@
++option('tests', type: 'boolean', value: true,
++       description: 'Build tests and install the SSC mock server')
++option('introspection', type: 'boolean', value: true,
++       description: 'Generate introspection data when available')
+diff --git a/src/libssc-common-private.h b/src/libssc-common-private.h
+--- a/src/libssc-common-private.h
++++ b/src/libssc-common-private.h
+@@ -71,6 +71,7 @@
+ 
+ #define SSC_STREAM_TYPE_CONTINUOUS			0
+ #define SSC_STREAM_TYPE_ON_CHANGE			1
++#define SSC_STREAM_TYPE_SINGLE_OUTPUT			2
+ 
+ typedef struct {
+ 	GMutex mutex;
+diff --git a/src/libssc-sensor.c b/src/libssc-sensor.c
+--- a/src/libssc-sensor.c
++++ b/src/libssc-sensor.c
+@@ -231,7 +231,9 @@ sensor_open (SSCSensor *self, GCancellable *cancellable, GAsyncReadyCallback callback
+ 	 * Sensors which support on-change do not need any configuration,
+ 	 * only a different message ID to enable them.
+ 	 */
+-	} else if (priv->stream_type == SSC_STREAM_TYPE_ON_CHANGE) {
++	} else if (priv->stream_type == SSC_STREAM_TYPE_ON_CHANGE ||
++		   priv->stream_type == SSC_STREAM_TYPE_SINGLE_OUTPUT) {
++		/* Single-output sensors use the same request and fire only once. */
+ 		msg_id = SSC_MSG_REQUEST_ENABLE_REPORT_ON_CHANGE;
+ 	} else
+ 		g_assert_not_reached ();

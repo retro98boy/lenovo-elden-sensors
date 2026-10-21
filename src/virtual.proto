@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Wire layouts follow Qualcomm sensinghub APIs. See README.md for references.
+syntax = "proto2";
+
+message VirtualVector {
+    repeated float data = 1 [packed = true];
+    required int32 accuracy = 2;
+}
+
+message VirtualInteger {
+    required uint32 value = 1;
+}

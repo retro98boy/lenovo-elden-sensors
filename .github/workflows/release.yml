@@ -1,0 +1,52 @@
+name: Trixie arm64 package
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    container: debian:trixie
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential git cmake meson ninja-build pkg-config ca-certificates \
+            protobuf-c-compiler protobuf-compiler libprotobuf-c-dev libglib2.0-dev \
+            libqmi-glib-dev libqrtr-glib-dev libgudev-1.0-dev libpolkit-gobject-1-dev \
+            python3-dev python3-protobuf python3-gi qrtr-tools
+      - name: Build
+        run: |
+          version=$(sed -n 's/^Version: //p' packaging/control)
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            test "$GITHUB_REF_NAME" = "v$version"
+          fi
+          bash scripts/build-deb.sh "$PWD/work"
+      - name: Checksums
+        run: cd work && sha256sum *.deb *_sources.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lenovo-elden-sensors-trixie-arm64
+          path: |
+            work/*.deb
+            work/*_sources.tar.gz
+            work/SHA256SUMS
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: lenovo-elden-sensors-trixie-arm64
+          path: artifacts
+      - run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

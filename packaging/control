@@ -1,0 +1,12 @@
+Package: lenovo-elden-sensors
+Version: 0.4.0
+Architecture: arm64
+Maintainer: Local build <root@localhost>
+Depends: iio-sensor-proxy, libglib2.0-0t64 (>= 2.76), libqmi-glib5 (>= 1.34), libqrtr-glib0, libprotobuf-c1, libgudev-1.0-0, libpolkit-gobject-1-0, libc6
+Description: Lenovo Y700 Gen4 SSC sensor support
+ Includes private libraries and runtime data. Board services are installed separately.
+ .
+ The distribution iio-sensor-proxy package supplies the systemd service,
+ D-Bus configuration and permission policies. Armbian supplies a systemd
+ drop-in that selects the private binary and libraries under
+ /usr/share/lenovo-elden-sensors. The distribution binary is not overwritten.

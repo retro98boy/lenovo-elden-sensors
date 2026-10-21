@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+syntax = "proto2";
+
+// SSC hall event 770. Other fields remain optional to this consumer.
+message HallEvent {
+    required uint32 state = 1;
+}

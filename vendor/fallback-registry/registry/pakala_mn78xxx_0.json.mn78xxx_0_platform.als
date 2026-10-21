@@ -1,0 +1,1 @@
+{"mn78xxx_0_platform.als":{"owner":"sns_mn78xxx","fac_cal":{"type":"grp","ver":"0","data":""},"config":{"type":"grp","ver":"0","data":""},"ag_cfg":{"type":"grp","ver":"0","data":""}}}

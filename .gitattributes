@@ -1,0 +1,5 @@
+# Preserve imported vendor bytes and their checksum manifests.
+vendor/runtime/** -text -whitespace
+vendor/fallback-registry/** -text -whitespace
+# Unified diff context includes whitespace that is not source indentation.
+patches/*.patch -whitespace
